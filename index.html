@@ -829,11 +829,17 @@ function saveEdit(){
   };
   const oldDate=document.getElementById('e-old-date').value;
   const oldName=document.getElementById('e-old-name').value;
-  fetch(SHEET_URL,{method:'POST',body:JSON.stringify({type:'update_reservation',oldDate:oldDate,oldName:oldName,reservation:r})})
+  fetch(SHEET_URL,{method:'POST',body:JSON.stringify({type:'update_reservation',oldDate:oldDate,oldName:oldName.trim(),reservation:r})})
     .then(res=>res.json())
-    .then(d=>{if(d.status==='ok'){closeEdit();loadHistory();alert('✓ 수정됐어요!');} })
+    .then(d=>{
+      if(d.status==='ok'){closeEdit();loadHistory();alert('✓ 수정됐어요!');}
+      else{
+        fetch(SHEET_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({type:'update_reservation',oldDate:oldDate,oldName:oldName.trim(),reservation:r})})
+          .then(()=>{closeEdit();loadHistory();alert('✓ 수정됐어요!');});
+      }
+    })
     .catch(()=>{
-      fetch(SHEET_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({type:'update_reservation',oldDate:oldDate,oldName:oldName,reservation:r})})
+      fetch(SHEET_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({type:'update_reservation',oldDate:oldDate,oldName:oldName.trim(),reservation:r})})
         .then(()=>{closeEdit();loadHistory();alert('✓ 수정됐어요!');});
     });
 }

@@ -602,10 +602,14 @@ function doCancelRes(btn){
   const card=btn.closest('.rec-card');
   const r=JSON.parse(card.dataset.r);
   if(!confirm('♡'+(r.name||'')+'('+r.date+') 예약을 취소할까요?\n취소 기록으로 이동됩니다.'))return;
-  fetch(SHEET_URL,{method:'POST',body:JSON.stringify({type:'cancel_reservation',date:r.date,name:r.name,status:r.status||''})})
+  const payload=JSON.stringify({type:'cancel_reservation',date:r.date,name:r.name,status:r.status||''});
+  fetch(SHEET_URL,{method:'POST',body:payload})
     .then(res=>res.json())
-    .then(d=>{if(d.status==='ok'){loadHistory();alert('취소 처리됐어요.');}})
-    .catch(()=>{fetch(SHEET_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({type:'cancel_reservation',date:r.date,name:r.name})}).then(()=>{loadHistory();alert('취소 처리됐어요!');});});
+    .catch(()=>({}))
+    .finally(()=>{
+      setTimeout(()=>loadHistory(),800);
+      alert('취소 처리됐어요!');
+    });
 }
 
 const _d=new Date();

@@ -72,7 +72,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .modal-btns{display:flex;gap:8px;margin-top:14px;}
 .modal-ok{flex:1;font-size:14px;padding:12px;border-radius:var(--radius-sm);border:none;background:var(--green-mid);color:#fff;cursor:pointer;font-family:inherit;font-weight:500;}
 .modal-no{flex:1;font-size:14px;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--gray-bg);color:var(--muted);cursor:pointer;font-family:inherit;}
-.date-group-header{font-size:12px;font-weight:700;color:var(--primary);background:var(--primary-light);border-radius:var(--radius-sm);padding:6px 12px;margin:12px 0 6px;}
 </style>
 </head>
 <body>
@@ -242,6 +241,16 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
       <div class="field"><label>전화번호</label><input type="text" id="e-phone" inputmode="tel"/></div>
       <div class="field"><label>담당자</label><input type="text" id="e-staff"/></div>
     </div>
+    <!-- ✅ 인원수 필드 (생일/단체용) -->
+    <div class="g2" style="margin-bottom:10px;" id="e-people-row">
+      <div class="field"><label>어른 인원</label><select id="e-adult"><option value="0">0명</option><option value="1">1명</option><option value="2">2명</option><option value="3">3명</option><option value="4">4명</option><option value="5">5명</option><option value="6">6명</option><option value="7">7명</option><option value="8">8명</option><option value="9">9명</option><option value="10">10명</option><option value="11">11명</option><option value="12">12명</option><option value="13">13명</option><option value="14">14명</option><option value="15">15명</option><option value="16">16명</option><option value="17">17명</option><option value="18">18명</option><option value="19">19명</option><option value="20">20명</option></select></div>
+      <div class="field"><label>아이 인원</label><select id="e-kid"><option value="0">0명</option><option value="1">1명</option><option value="2">2명</option><option value="3">3명</option><option value="4">4명</option><option value="5">5명</option><option value="6">6명</option><option value="7">7명</option><option value="8">8명</option><option value="9">9명</option><option value="10">10명</option><option value="11">11명</option><option value="12">12명</option><option value="13">13명</option><option value="14">14명</option><option value="15">15명</option><option value="16">16명</option><option value="17">17명</option><option value="18">18명</option><option value="19">19명</option><option value="20">20명</option><option value="25">25명</option><option value="30">30명</option><option value="40">40명</option><option value="50">50명</option><option value="60">60명</option><option value="70">70명</option><option value="80">80명</option><option value="90">90명</option><option value="100">100명</option></select></div>
+    </div>
+    <!-- ✅ 인원수 필드 (어린이집용) -->
+    <div class="g2" style="margin-bottom:10px;display:none;" id="e-kinder-row">
+      <div class="field"><label>교사 인원</label><select id="e-teacher"><option value="0">0명</option><option value="1">1명</option><option value="2">2명</option><option value="3">3명</option><option value="4">4명</option><option value="5">5명</option><option value="6">6명</option><option value="7">7명</option><option value="8">8명</option><option value="9">9명</option><option value="10">10명</option><option value="15">15명</option><option value="20">20명</option></select></div>
+      <div class="field"><label>어린이 인원</label><select id="e-child"><option value="0">0명</option><option value="1">1명</option><option value="2">2명</option><option value="3">3명</option><option value="4">4명</option><option value="5">5명</option><option value="6">6명</option><option value="7">7명</option><option value="8">8명</option><option value="9">9명</option><option value="10">10명</option><option value="15">15명</option><option value="20">20명</option><option value="25">25명</option><option value="30">30명</option><option value="40">40명</option><option value="50">50명</option><option value="60">60명</option><option value="70">70명</option><option value="80">80명</option><option value="90">90명</option><option value="100">100명</option></select></div>
+    </div>
     <div class="field" style="margin-bottom:4px;"><label>특이사항</label><textarea id="e-memo" rows="2"></textarea></div>
     <input type="hidden" id="e-old-date"/>
     <input type="hidden" id="e-old-name"/>
@@ -258,7 +267,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 const SHEET_URL='https://script.google.com/macros/s/AKfycbwP8vfcldxfqfOeGXEZR-ctwOh86XP4Qz2rxPpAIsB6N-lZUGmEGPg09H_w_1Ji_a0p4Q/exec';
 let waitRecords=[];
 
-// 날짜를 YYYY-MM-DD로 정규화 (Date객체, ISO문자열 등 모두 처리)
 function normDate(raw){
   if(!raw)return '';
   const s=String(raw).trim();
@@ -340,7 +348,6 @@ function getDateStr(v){
 }
 
 function genWait(){
-  const _ws=getTime('w-start-h','w-start-m');const _we=getTime('w-end-h','w-end-m');
   document.getElementById('w-msg').textContent='안녕하세요.\n헬로방방 부천점입니다. \n예약금 10,000원 \n국민은행 헬로방방(중상동점)\n318001-04-305986\n입금 확인 되시면 \n예약 도와 드리겠습니다. \n문의전화 : 032-321-8502\n취소시 예약금 환불은 불가합니다.';
 }
 
@@ -466,7 +473,6 @@ function loadHistory(){
   fetch(SHEET_URL)
     .then(res=>res.json())
     .then(data=>{
-      // 취소 완전 제외 + 오늘 이후만
       const all=[
         ...(data.waiting||[]).map(r=>({...r,_type:'wait'})),
         ...(data.confirmed||[]).map(r=>({...r,_type:'confirm'})),
@@ -511,6 +517,17 @@ function openEdit(btn){
   document.getElementById('e-phone').value=r.phone||'';
   document.getElementById('e-staff').value=r.staff||'';
   document.getElementById('e-memo').value=r.memo||'';
+  // ✅ 인원수 - 카테고리에 따라 다른 필드 표시
+  const isKinder=r.category==='어린이집';
+  document.getElementById('e-people-row').style.display=isKinder?'none':'grid';
+  document.getElementById('e-kinder-row').style.display=isKinder?'grid':'none';
+  if(isKinder){
+    document.getElementById('e-teacher').value=String(r.teacherCount||0);
+    document.getElementById('e-child').value=String(r.childCount||0);
+  } else {
+    document.getElementById('e-adult').value=String(r.adultCount||0);
+    document.getElementById('e-kid').value=String(r.kidCount||0);
+  }
   document.getElementById('e-old-date').value=r.date||'';
   document.getElementById('e-old-name').value=r.name||'';
   document.getElementById('e-status').value=r.status||'';
@@ -521,6 +538,8 @@ function openEdit(btn){
 function closeEdit(){document.getElementById('edit-modal').classList.remove('show');}
 
 function saveEdit(){
+  const category=document.getElementById('e-category').value;
+  const isKinder=category==='어린이집';
   const r={
     date:document.getElementById('e-date').value,
     day:document.getElementById('e-day').value,
@@ -532,7 +551,12 @@ function saveEdit(){
     staff:document.getElementById('e-staff').value,
     memo:document.getElementById('e-memo').value,
     status:document.getElementById('e-status').value,
-    category:document.getElementById('e-category').value,
+    category:category,
+    // ✅ 인원수 - 카테고리에 따라 올바른 값 전송
+    adultCount:isKinder?0:Number(document.getElementById('e-adult').value),
+    kidCount:isKinder?0:Number(document.getElementById('e-kid').value),
+    teacherCount:isKinder?Number(document.getElementById('e-teacher').value):0,
+    childCount:isKinder?Number(document.getElementById('e-child').value):0,
   };
   const oldDate=document.getElementById('e-old-date').value;
   const oldName=document.getElementById('e-old-name').value;
